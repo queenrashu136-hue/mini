@@ -64,7 +64,7 @@ const config = {
 const { MongoClient } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 
-const mongoUri = 'mongodb+srv://Rashumd:Rashumd2007@cluster0.gpwvfzj.mongodb.net/';
+const mongoUri = 'mongodb+srv://ljjj:@cluster0.7qx49gm.mongodb.net/';
 const client = new MongoClient(mongoUri);
 let db;
 
@@ -767,62 +767,62 @@ case 'menu': {
                     }
 case 'song': {
     try {
-        // 🧠 Check if user entered a song name or link
         const q = args.join(" ");
         if (!q || q.trim() === "") {
             return await socket.sendMessage(sender, {
-                text: "🎶 *කරුණාකර ගීතයේ නමක් හෝ YouTube link එකක් දෙන්න!*\n\nඋදාහරණයක්:\n`.song shape of you`"
+                text: "🎶 *කරුණාකර ගීතයේ නමක් හෝ YouTube link එකක් දෙන්න!*\n\nඋදාහරණය:\n`.song calm down`"
             }, { quoted: msg });
         }
 
-        const yts = require('yt-search');
+        // SEARCH
+        const yts = require("yt-search");
         const search = await yts(q);
 
         if (!search.videos || search.videos.length === 0) {
-            return reply("*❌ ගීතය හමුනොවුණා. වෙනත් නමක් උත්සහ කරන්න!*");
+            return reply("❌ *ගීතය සෙවීම පරික්ෂා කරන්න!*");
         }
 
-        const data = search.videos[0];
-        const ytUrl = data.url;
+        const video = search.videos[0];
 
-        // 🎧 Download API
-        const api = `https://sadiya-tech-apis.vercel.app/download/ytdl?url=${ytUrl}&format=mp3&apikey=sadiya`;
-        const { data: apiRes } = await axios.get(api);
+        // FAA API
+        const apiUrl = `https://api-faa.my.id/faa/ytplay?query=${encodeURIComponent(video.title)}`;
 
-        if (!apiRes?.status || !apiRes.result?.download) {
-            return reply("❌ ගීතය බාගත කළ නොහැක. වෙනත් එකක් උත්සහ කරන්න!");
+        const { data } = await axios.get(apiUrl);
+
+        if (!data.status || !data.result || !data.result.url) {
+            return reply("❌ *ගීතය බාගත කළ නොහැක. වෙනත් එකක් උත්සහ කරන්න!*");
         }
 
-        const result = apiRes.result;
+        const result = data.result;
 
-        // 📝 Song info caption
+        // Caption
         const caption = `╭───────────────╮
-🎶 *Title:* ${data.title}
-⏱️ *Duration:* ${data.timestamp}
-👁️ *Views:* ${data.views}
-📅 *Released:* ${data.ago}
+🎶 *Title:* ${video.title}
+⏱️ *Duration:* ${video.timestamp}
+👁️ *Views:* ${video.views}
+📅 *Released:* ${video.ago}
 ╰───────────────╯`;
 
-        // 📸 Send thumbnail + info
+        // Send Thumbnail
         await socket.sendMessage(sender, {
-            image: { url: result.thumbnail },
-            caption: caption,
+            image: { url: video.thumbnail },
+            caption: caption
         });
 
-        // 🎧 Send MP3
+        // Send MP3 Audio
         await socket.sendMessage(sender, {
-            audio: { url: result.download },
+            audio: { url: result.url },
             mimetype: "audio/mpeg",
-            fileName: `${data.title}.mp3`,
+            fileName: `${video.title}.mp3`
         });
 
-    } catch (e) {
-        console.error(e);
-        reply("❌ *දෝෂයකි!* කරුණාකර පසුව නැවත උත්සහ කරන්න.");
+    } catch (err) {
+        console.error(err);
+        reply("❌ *දෝෂයකි!* පසුව උත්සහ කරන්න.");
     }
     break;
-
 }
+
     case 'jid':
     try {
 
